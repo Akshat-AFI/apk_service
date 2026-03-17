@@ -7,10 +7,17 @@ def clone_or_update_repo():
     repo_dir = os.path.abspath(settings.FRONTEND_REPO_DIR)
     branch = settings.FRONTEND_REPO_BRANCH
 
+    # Prepare authenticated URL if PAT is available
+    repo_url = settings.FRONTEND_REPO_URL
+    if settings.GITHUB_PAT and settings.GITHUB_USER:
+        if "https://" in repo_url:
+            base_url = repo_url.replace("https://", "")
+            repo_url = f"https://{settings.GITHUB_USER}:{settings.GITHUB_PAT}@{base_url}"
+
     if not os.path.exists(os.path.join(repo_dir, ".git")):
-        print(f"📦 Cloning frontend repo (branch {branch}) from {settings.FRONTEND_REPO_URL} ...")
+        print(f"📦 Cloning frontend repo (branch {branch}) ...")
         subprocess.run(
-            ["git", "clone", "--branch", branch, "--single-branch", settings.FRONTEND_REPO_URL, repo_dir],
+            ["git", "clone", "--branch", branch, "--single-branch", repo_url, repo_dir],
             check=True
         )
     else:

@@ -4,6 +4,8 @@ from pydantic import Field
 class APKSettings(BaseSettings):
     LME_BASE_URL: str = Field("http://74.224.97.26:8004", description="LME API base URL")
     LME_AUTH_TOKEN: str = Field("", description="Internal security access token for LME API")
+    GITHUB_USER: str = Field("Akshat-AFI", description="GitHub username for private repo access")
+    GITHUB_PAT: str = Field("", description="GitHub Personal Access Token")
     APK_OUTPUT_DIR: str = Field("apks", description="Output folder for generated APKs")
     CONTENT_DIR: str = Field("content", description="Where language content & assets are downloaded")
     APK_LIST_FILE: str = Field("apks_list.json", description="APK metadata list")
