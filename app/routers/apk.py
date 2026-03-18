@@ -10,7 +10,7 @@ router = APIRouter(prefix="/apk", tags=["APK"])
 async def generate(langId: str = Query(...), draft: bool = Query(False)):
     try:
         result = await generate_apk(langId, draft)
-        return {"status": "success", "apk": result}
+        return result
     except RuntimeError as e:
         raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:

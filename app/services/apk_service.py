@@ -23,7 +23,11 @@ async def generate_apk(lang_id: str, draft: bool=False):
         clone_or_update_repo()
 
         manifest = await fetch_manifest(lang_id, settings.LME_BASE_URL, settings.LME_AUTH_TOKEN)
+        print(f"✅ Fetched manifest for {lang_id}")
+
         sas_url = await get_sas_url(settings.LME_BASE_URL, settings.LME_AUTH_TOKEN)
+        print("✅ Fetched SAS URL")
+
         assets = extract_all_asset_filenames(manifest)
         print(f"📦 Found {len(assets)} assets for {lang_id}")
 
