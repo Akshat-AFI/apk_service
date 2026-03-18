@@ -25,7 +25,8 @@ def build_apk(lang_id: str, draft: bool=False) -> Dict[str, str]:
     gradlew = "gradlew.bat" if os.name == "nt" else "./gradlew"
 
     # 🧹 Clean previous build
-    subprocess.run([gradlew, "clean"], cwd=android_dir, shell=True, check=False)
+    print("🧹 Running gradlew clean ...")
+    subprocess.run([gradlew, "clean"], cwd=android_dir, shell=True, check=True)
 
     # 🏗️ Run actual Gradle build command
     # NOTE: We avoid capture_output/PIPE to prevent deadlocks on large Gradle logs (Windows buffer limit)

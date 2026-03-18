@@ -1,5 +1,6 @@
 import os
 import subprocess
+import hashlib
 from app.core.apk_config import settings
 
 def clone_or_update_repo():
@@ -30,27 +31,38 @@ def clone_or_update_repo():
     
     # 📦 Install dependencies (required for Gradle plugins)
     node_modules_dir = os.path.join(repo_dir, "node_modules")
+    package_lock = os.path.join(repo_dir, "package-lock.json")
     package_json = os.path.join(repo_dir, "package.json")
+    checksum_file = os.path.join(repo_dir, ".package_checksum")
     
+    # Calculate current checksum of package-lock.json (or package.json if lock missing)
+    target_file = package_lock if os.path.exists(package_lock) else package_json
+    current_checksum = ""
+    if os.path.exists(target_file):
+        with open(target_file, "rb") as f:
+            current_checksum = hashlib.md5(f.read()).hexdigest()
+
+    stored_checksum = ""
+    if os.path.exists(checksum_file):
+        with open(checksum_file, "r") as f:
+            stored_checksum = f.read().strip()
+
     # Check if we need to install
-    needs_install = not os.path.exists(node_modules_dir)
-    if not needs_install and os.path.exists(package_json):
-        # If package.json is newer than node_modules, we should install
-        if os.path.getmtime(package_json) > os.path.getmtime(node_modules_dir):
-            needs_install = True
+    needs_install = not os.path.exists(node_modules_dir) or current_checksum != stored_checksum
 
     if needs_install:
-        print(f"📦 Installing dependencies in {repo_dir} ...")
+        print(f"📦 Dependencies out of date or missing. Installing in {repo_dir} ...")
         npm_cmd = "npm.cmd" if os.name == "nt" else "npm"
         try:
-            # Use 'npm install' instead of 'npm ci' to avoid full directory wipe which causes EPERM on Windows
-            subprocess.run([npm_cmd, "install", "--no-audit", "--no-fund"], cwd=repo_dir, shell=True, check=True)
+            # Use 'npm install' with --prefer-offline for speed
+            subprocess.run([npm_cmd, "install", "--no-audit", "--no-fund", "--prefer-offline"], cwd=repo_dir, shell=True, check=True)
             print("✅ Dependencies installed.")
-            # Touch node_modules to update its mtime
-            os.utime(node_modules_dir, None)
+            # Update stored checksum
+            with open(checksum_file, "w") as f:
+                f.write(current_checksum)
         except subprocess.CalledProcessError as e:
             print(f"❌ Error during npm install: {e}")
-            print("💡 TIP: If you see EPERM errors, try stopping uvicorn and running the install manually once.")
+            print("💡 TIP: If you see EPERM errors, try stopping the service and running 'npm install' manually once.")
             raise
     else:
-        print("✅ Node modules are up to date.")
+        print("✅ Node modules are up to date (checksum matched).")
