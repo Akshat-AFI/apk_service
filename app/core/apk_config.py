@@ -15,7 +15,7 @@ class APKSettings(BaseSettings):
     ANDROID_ASSETS_BASE: str = "frontend_app/assets"
     UPLOAD_APK_TO_AZURE: bool = Field(False, description="Whether to upload APK to Azure")
     FRONTEND_REPO_URL: str = Field("https://github.com/maternity-foundation-production/sdp-app.git", description="Frontend repository URL")
-    FRONTEND_REPO_BRANCH: str = "feat/apk_service"
+    FRONTEND_REPO_BRANCH: str = "feat/apk_optimizations"
     FRONTEND_REPO_DIR: str = "frontend_app"
     ANDROID_PROJECT_DIR: str = "frontend_app/android"
     MANIFEST_OUTPUT_DIR: str = "frontend_app/android/app/src/main/assets/bundled"
