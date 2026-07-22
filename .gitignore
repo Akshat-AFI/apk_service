@@ -23,6 +23,8 @@ venv/
 
 # Java / Android / IntelliJ
 .gradle/
+.gradle-home/
+hs_err_pid*.log
 .idea/
 *.iml
 local.properties

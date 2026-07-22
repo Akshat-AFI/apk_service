@@ -11,7 +11,21 @@ class APKSettings(BaseSettings):
     APK_LIST_FILE: str = Field("apks_list.json", description="APK metadata list")
     LOCK_FILE: str = Field("generation.lock", description="Lock file")
     ANDROID_PROJECT_DIR: str = Field("../android", description="Path to your React Native android project")
+    GRADLE_JAVA_HOME: str = Field(
+        r"C:\Program Files\Android\Android Studio\jbr",
+        description="JDK 17+ home used for the Gradle build (RN/AGP require Java 11+). Set to '' to use the ambient JAVA_HOME/PATH.",
+    )
+    GRADLE_USER_HOME: str = Field(
+        ".gradle-home",
+        description="Dedicated Gradle user home for the build. Its gradle.properties overrides the frontend's (e.g. heap), pull-safe.",
+    )
+    GRADLE_MAX_HEAP: str = Field(
+        "4g",
+        description="Max JVM heap for the Gradle daemon (-Xmx). The frontend pins 16g which OOMs on <16GB machines.",
+    )
     AZURE_APK_BASE_URL: str = Field("https://sdacms.blob.core.windows.net/apk/", description="Azure Blob storage base URL")
+    AZURE_APK_CONTAINER: str = Field("apk", description="Azure Blob container name for uploaded APKs")
+    AZURE_STORAGE_CONNECTION_STRING: str = Field("", description="Azure Storage connection string (required when UPLOAD_APK_TO_AZURE=True)")
     ANDROID_ASSETS_BASE: str = "frontend_app/assets"
     UPLOAD_APK_TO_AZURE: bool = Field(False, description="Whether to upload APK to Azure")
     FRONTEND_REPO_URL: str = Field("https://github.com/maternity-foundation-production/sdp-app.git", description="Frontend repository URL")

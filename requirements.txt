@@ -30,3 +30,5 @@ pydantic-settings==2.5.2
 loguru==0.7.2
 typing-extensions==4.12.2
 httpx
+# Only needed when UPLOAD_APK_TO_AZURE=True (imported lazily)
+azure-storage-blob==12.22.0

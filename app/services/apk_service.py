@@ -10,10 +10,14 @@ from app.utils.bundle_utils import fetch_manifest, extract_all_asset_filenames, 
 from app.utils.apk_downloader import download_assets
 from app.utils.apk_builder import build_apk
 
+class GenerationInProgressError(RuntimeError):
+    """Raised when a build is requested while another is already running."""
+
+
 async def generate_apk(lang_id: str, draft: bool=False):
     ensure_dirs()
     if os.path.exists(settings.LOCK_FILE):
-        raise RuntimeError("Another generation is already in progress")
+        raise GenerationInProgressError("Another generation is already in progress")
 
     write_lock(create_lock_payload(lang_id, draft))
 
@@ -22,8 +26,8 @@ async def generate_apk(lang_id: str, draft: bool=False):
 
         clone_or_update_repo()
 
-        manifest = await fetch_manifest(lang_id, settings.LME_BASE_URL, settings.LME_AUTH_TOKEN)
-        print(f"✅ Fetched manifest for {lang_id}")
+        manifest = await fetch_manifest(lang_id, settings.LME_BASE_URL, settings.LME_AUTH_TOKEN, draft)
+        print(f"✅ Fetched {'draft' if draft else 'published'} manifest for {lang_id}")
 
         sas_url = await get_sas_url(settings.LME_BASE_URL, settings.LME_AUTH_TOKEN)
         print("✅ Fetched SAS URL")
@@ -45,7 +49,8 @@ async def generate_apk(lang_id: str, draft: bool=False):
         await download_assets(assets, sas_url, assets_dir)
         print(f"✅ Downloaded all assets to {assets_dir}")
 
-        apk_meta = build_apk(lang_id, draft)
+        lang_version = str(manifest.get("language", {}).get("version", "unknown"))
+        apk_meta = build_apk(lang_id, lang_version, draft)
 
         apk_list = read_apk_list()
         lang_list = apk_list.get(lang_id, [])

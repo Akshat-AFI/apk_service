@@ -1,9 +1,14 @@
 import httpx
 from typing import Dict, Any, List
 
-async def fetch_manifest(lang_id: str, base_url: str, auth_token: str) -> Dict[str, Any]:
-    """Fetch the full language manifest from the LME API (v2)"""
-    url = f"{base_url}/v1/clients/manifest/{lang_id}"
+async def fetch_manifest(lang_id: str, base_url: str, auth_token: str, draft: bool = False) -> Dict[str, Any]:
+    """Fetch the full language manifest from the LME API (v2).
+
+    - published (draft=False): GET /v1/clients/manifest/{lang_id}
+    - draft    (draft=True):   GET /v1/clients/draft-manifest/{lang_id}
+    """
+    endpoint = "draft-manifest" if draft else "manifest"
+    url = f"{base_url}/v1/clients/{endpoint}/{lang_id}"
     headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
     async with httpx.AsyncClient(timeout=180) as client:
         res = await client.get(url, headers=headers)
